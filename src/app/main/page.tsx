@@ -5,45 +5,46 @@ import { EpisodesForm } from "@/create/episodesForm"
 import Image from "next/image" 
 import {useState, useEffect} from 'react' 
 //aqui hacemos interfaz para el formulario 
-const handleCreate = ({
-    name,
-    personajes,
-  }: {
-    name: string;
-    personajes: string;
-  }) => {
-    const now = new Date();
-    const nuevo = {
-      id: Date.now(),
-      name,
-      air_date: now.toDateString(),
-      episode: "CUSTOM",
-      created: now.toISOString(),
-      personajes, // guardamos los 5 IDs para posible uso posterior
-      isCustom: true,
-    } as any;
-  
-    setEpisodios((prev) => [nuevo, ...prev]);
-  };
-//aqui llamamos a los  estados 
-const [episodios, setEpisodios] = useState<any[]>([]);
-const [favoritos, setFavoritos] = useState<any[]>([]);
-//aqui guardo en local storage 
-useEffect(() => { 
-    const favoritosGuardados = localStorage.getItem('favoritos'); 
-    if (favoritosGuardados) { 
-        setFavoritos(JSON.parse(favoritosGuardados)); 
-    } 
-}, []); 
-//aqui guardo los favoritos 
-useEffect(() => { 
-    localStorage.setItem('favoritos', JSON.stringify(favoritos)); 
-}, [favoritos]); 
+
 
 //empezamos consumiendo la api 
 export default async function HomePage() { 
     const data = await fetch('https://rickandmortyapi.com/api/episode E') 
-    const episodes = await data.json() 
+    const episodes = await data.json()
+    const [episodios, setEpisodios] = useState<any[]>([]);
+    const [favoritos, setFavoritos] = useState<any[]>([]); 
+    const handleCreate = ({
+        name,
+        personajes,
+      }: {
+        name: string;
+        personajes: string;
+      }) => {
+        const now = new Date();
+        const nuevo = {
+          id: Date.now(),
+          name,
+          air_date: now.toDateString(),
+          episode: "CUSTOM",
+          created: now.toISOString(),
+          personajes, // guardamos los 5 IDs para posible uso posterior
+          isCustom: true,
+        } as any;
+      
+        setEpisodios((prev) => [nuevo, ...prev]);
+      };
+    
+    //aqui guardo en local storage 
+    useEffect(() => { 
+        const favoritosGuardados = localStorage.getItem('favoritos'); 
+        if (favoritosGuardados) { 
+            setFavoritos(JSON.parse(favoritosGuardados)); 
+        } 
+    }, []); 
+    //aqui guardo los favoritos 
+    useEffect(() => { 
+        localStorage.setItem('favoritos', JSON.stringify(favoritos)); 
+    }, [favoritos]);
     return( 
         <div> 
             <div className="flex flex-col items-center justify-center min-h-screen py-2"> 
