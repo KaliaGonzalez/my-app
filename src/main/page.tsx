@@ -2,6 +2,22 @@
 import { SonnerDemo } from "@/components/sonner" 
 import { Button } from "@/components/ui/button" 
 import Image from "next/image" 
+import {useState, useEffect} from 'react' 
+
+//aqui llamamos a los  estados 
+const [episodios, setEpisodios] = useState<any[]>([]);
+const [favoritos, setFavoritos] = useState<any[]>([]);
+//aqui guardo en local storage 
+useEffect(() => { 
+    const favoritosGuardados = localStorage.getItem('favoritos'); 
+    if (favoritosGuardados) { 
+        setFavoritos(JSON.parse(favoritosGuardados)); 
+    } 
+}, []); 
+//aqui guardo los favoritos 
+useEffect(() => { 
+    localStorage.setItem('favoritos', JSON.stringify(favoritos)); 
+}, [favoritos]); 
 
 //empezamos consumiendo la api 
 export default async function HomePage() { 
@@ -22,8 +38,32 @@ export default async function HomePage() {
                 </div> 
                 <div className="mt-8"> 
                     <SonnerDemo /> 
-                </div> 
+                </div>  
+                //aqui vamos a mostrar los favoritos 
+                <div className="mt-8 w-full max-w-2xl"> 
+                    <h2 className="text-3xl font-bold mb-4">Favoritos</h2> 
+                    {favoritos.length === 0 ? ( 
+                        <p className="text-gray-600">No tienes episodios favoritos.</p> 
+                    ) : ( 
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-8"> 
+                            {favoritos.map((fav: { id: number; name: string; air_date: string; episode: string }) => ( 
+                                <div key={fav.id} className="bg-yellow-100 rounded-lg shadow-md p-6"> 
+                                    <h2 className="text-2xl font-semibold mb-2">{fav.name}</h2> 
+                                    <p className="text-gray-600 mb-1"><strong>Air Date:</strong> {fav.air_date}</p> 
+                                    <p className="text-gray-600"><strong>Episode:</strong> {fav.episode}</p> 
+                                    <Button 
+                                        variant="destructive" 
+                                        className="mt-4" 
+                                        onClick={() => setFavoritos(favoritos.filter(f => f.id !== fav.id))} 
+                                    > 
+                                        Remove from Favorites 
+                                    </Button> 
+                                </div> 
+                            ))} 
+                        </div> 
+                    )}
             </div>
+        </div>
         </div>
     );
     
