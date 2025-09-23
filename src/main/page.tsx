@@ -1,9 +1,30 @@
 'use client' 
 import { SonnerDemo } from "@/components/sonner" 
-import { Button } from "@/components/ui/button" 
+import { Button } from "@/components/ui/button"  
+import { EpisodesForm } from "@/create/episodesForm"
 import Image from "next/image" 
 import {useState, useEffect} from 'react' 
-
+//aqui hacemos interfaz para el formulario 
+const handleCreate = ({
+    name,
+    personajes,
+  }: {
+    name: string;
+    personajes: string;
+  }) => {
+    const now = new Date();
+    const nuevo = {
+      id: Date.now(),
+      name,
+      air_date: now.toDateString(),
+      episode: "CUSTOM",
+      created: now.toISOString(),
+      personajes, // guardamos los 5 IDs para posible uso posterior
+      isCustom: true,
+    } as any;
+  
+    setEpisodios((prev) => [nuevo, ...prev]);
+  };
 //aqui llamamos a los  estados 
 const [episodios, setEpisodios] = useState<any[]>([]);
 const [favoritos, setFavoritos] = useState<any[]>([]);
@@ -26,7 +47,9 @@ export default async function HomePage() {
     return( 
         <div> 
             <div className="flex flex-col items-center justify-center min-h-screen py-2"> 
-                <h1 className="text-4xl font-bold mb-8">Rick and Morty Episodes</h1> 
+                <h1 className="text-4xl font-bold mb-8">Rick and Morty Episodes</h1>  
+                //aqui pongo el formulario 
+                <EpisodesForm onSubmit={handleCreate} />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-8"> 
                     {episodes.results.map((episode: { id: number; name: string; air_date: string; episode: string }) => ( 
                         <div key={episode.id} className="bg-white rounded-lg shadow-md p-6"> 
