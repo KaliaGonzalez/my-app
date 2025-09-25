@@ -1,79 +1,65 @@
-'use client' 
-import { zodResolver } from '@hookform/resolvers/zod'; 
-import z from 'zod'; 
-import { SubmitHandler, useForm } from 'react-hook-form'; 
+'use client';
 
-// Definimos el esquema de validación con Zod 
-const episodeSchema = z.object({ 
-    name: z.string().min(1, 'El nombre es obligatorio'), 
-    personajes: z.string().min(1, 'los personajes son obligatorios'),
-}); 
-type EpisodeFormData = z.infer<typeof episodeSchema>; 
-type EpisodeFormProps = {
-    onSubmit: (data: EpisodeFormData) => void;
+import { useState, FormEvent } from 'react';
+import { Button } from '@/components/ui/button';
+
+const PERSONAJES_REGEX = /^\d+-\d+-\d+-\d+-\d+$/;
+
+export function EpisodesForm({
+  onSubmit,
+}: {
+  onSubmit: (data: { name: string; personajes: string }) => void;
+}) {
+  const [name, setName] = useState('');
+  const [personajes, setPersonajes] = useState('');
+
+  const nameValid = name.trim().length >= 6;
+  const personajesValid = PERSONAJES_REGEX.test(personajes.trim());
+  const isValid = nameValid && personajesValid;
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!isValid) return;
+    onSubmit({ name: name.trim(), personajes: personajes.trim() });
+    // reset form
+    setName('');
+    setPersonajes('');
   };
-  export function EpisodesForm({ onSubmit }: EpisodeFormProps) {
-    const {
-      register,
-      handleSubmit,
-      formState: { errors, isValid, isSubmitting },
-      reset,
-    } = useForm<EpisodeFormData>({
-      resolver: zodResolver(episodeSchema),
-      mode: "onChange", 
-    });
-  
-    const submitHandler: SubmitHandler<EpisodeFormData> = (data) => {
-      onSubmit(data);  
-    };
-  
-    return (
-      <form
-        onSubmit={handleSubmit(submitHandler)}
-        className="max-w-md mx-auto p-4 bg-white shadow-md rounded space-y-4"
-      >
-        <h2 className="text-xl font-bold"> Crear episodio</h2>
-  
-        {'Nombre del episodio'}
-        <div>
-          <label htmlFor="name" className="block font-semibold mb-1">
-            Nombre del Episodio
-          </label>
-          <input
-            id="name"
-            {...register("name")}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none"
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-          )}
-        </div>
-  
-        {' Personajes'}
-        <div>
-          <label htmlFor="personajes" className="block font-semibold mb-1">
-            Personajes (5 IDs separados por "-")
-          </label>
-          <input
-            id="personajes"
-            {...register("personajes")}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none"
-            placeholder="Ej: 12-14-1-23-8"
-          />
-          {errors.personajes && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.personajes.message}
-            </p>
-          )}
-        </div>
-  
-        <button
-          type="submit"
-          disabled={!isValid || isSubmitting}
-          className="px-4 py-2 rounded bg-blue-600 text-white font-semibold disabled:opacity-50"
-        >
-          Guardar episodio
-        </button>
-      </form>
-    );
-  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-lg shadow p-6 w-full"
+    >
+      <h2 className="text-2xl font-bold mb-4">Crear episodio</h2>
+
+      <label className="block text-sm font-medium mb-1">Nombre del episodio</label>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Nombre del Episodio"
+        className="w-full border rounded px-3 py-2 mb-3"
+      />
+      {!nameValid && name.length > 0 && (
+        <p className="text-xs text-red-600 mb-2">Mínimo 6 caracteres.</p>
+      )}
+
+      <label className="block text-sm font-medium mb-1">Personajes (5 IDs separados por “-”)</label>
+      <input
+        value={personajes}
+        onChange={(e) => setPersonajes(e.target.value)}
+        placeholder="12-14-1-23-8"
+        className="w-full border rounded px-3 py-2 mb-3"
+      />
+      {!personajesValid && personajes.length > 0 && (
+        <p className="text-xs text-red-600 mb-2">
+          Debe cumplir el formato 5 IDs: 12-14-1-23-8
+        </p>
+      )}
+
+      <Button type="submit" disabled={!isValid}>
+        Guardar episodio
+      </Button>
+    </form>
+  );
+}
